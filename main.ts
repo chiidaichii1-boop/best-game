@@ -7,7 +7,7 @@
 // scratch directory outside the repo for a local check):
 //   MAKEFUN_OUTPUT_DIR=/tmp/out node main.ts
 
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
@@ -15,8 +15,9 @@ import { buildDossier } from './vendor/makefun-game.ts';
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-// Start from an empty directory, so a second run writes exactly what the first wrote.
-rmSync(out, { recursive: true, force: true });
+// The grader's /output starts empty, so just create it; do not remove it first —
+// the grade run executes as an unprivileged user who can write into /output but
+// cannot remove the directory itself (its parent is not writable by that user).
 mkdirSync(out, { recursive: true });
 cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
 mkdirSync(join(out, 'screenshots'), { recursive: true });
